@@ -3,64 +3,78 @@ from py_project_dev_tools import main
 OPTIONS = {
     "module": main,
     "commands": {
-        "test_mods": {
-            "function_name": "test_mods",
+        "clone_repo": {
+            "function_name": "clone_repo",
             "arg_help_pairs": [
-                {"mod_names": "list of mod_names, strings"}
+                {"repo_url": "url of the github repo"},
+                {"repo_branch": "name of the repo branch to clone"}
             ]
         },
-        "test_mods_all": {
-            "function_name": "test_mods_all",
+        "make_dev_tools_release": {
+            "function_name": "make_dev_tools_release",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "open_latest_log": {
-            "function_name": "open_latest_log",
+        "refresh_deps": {
+            "function_name": "refresh_deps",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "run_game": {
-            "function_name": "run_game",
+        "install_hatch": {
+            "function_name": "install_hatch",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "install_uasset_gui": {
-            "function_name": "open_uasset_gui",
+        "install_git": {
+            "function_name": "install_git",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "install_kismet_analyzer": {
-            "function_name": "open_kismet_analyzer",
+        "test_virtual_environment": {
+            "function_name": "test_virtual_environment",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "install_stove": {
-            "function_name": "open_stove",
+        "cleanup_repo": {
+            "function_name": "cleanup_repo",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "install_umodel": {
-            "function_name": "open_umodel",
+        "test_exe_release": {
+            "function_name": "test_exe_release",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "install_fmodel": {
-            "function_name": "open_fmodel",
+        "make_exe_release": {
+            "function_name": "make_exe_release",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "install_spaghetti": {
-            "function_name": "open_spaghetti",
+        "upload_latest_to_repo": {
+            "function_name": "upload_latest_to_repo",
             "arg_help_pairs": [
-                {"settings_json_path": "Path to settings.json"}
+                {"project_toml_path": "Path to the pyproject.toml"}
+                {"repo_branch": "name of the repo branch to commit to"}
+            ]
+        },
+        "setup_virtual_environment": {
+            "function_name": "setup_virtual_environment",
+            "arg_help_pairs": [
+                {"project_toml_path": "Path to the pyproject.toml"}
+            ]
+        },
+        "make_all_release": {
+            "function_name": "make_all_release",
+            "arg_help_pairs": [
+                {"project_toml_path": "Path to the pyproject.toml"}
             ]
         }
     }
