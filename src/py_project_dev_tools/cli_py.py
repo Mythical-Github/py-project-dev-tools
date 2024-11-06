@@ -1,6 +1,6 @@
 import sys
 
-from unreal_auto_mod import log_py as log
+from py_project_dev_tools import log_py as log
 
 
 def cli_logic(cli_data):

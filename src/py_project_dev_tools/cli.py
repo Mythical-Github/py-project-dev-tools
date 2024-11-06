@@ -7,7 +7,9 @@ OPTIONS = {
             "function_name": "clone_repo",
             "arg_help_pairs": [
                 {"repo_url": "url of the github repo"},
-                {"repo_branch": "name of the repo branch to clone"}
+                {"repo_branch": "name of the repo branch to clone"},
+                {"clone_recursively": "if the repo should also clone it's submodules"},
+                {"output_directory": "where the repository should be cloned to"},
             ]
         },
         "make_dev_tools_release": {
@@ -18,18 +20,6 @@ OPTIONS = {
         },
         "refresh_deps": {
             "function_name": "refresh_deps",
-            "arg_help_pairs": [
-                {"project_toml_path": "Path to the pyproject.toml"}
-            ]
-        },
-        "install_hatch": {
-            "function_name": "install_hatch",
-            "arg_help_pairs": [
-                {"project_toml_path": "Path to the pyproject.toml"}
-            ]
-        },
-        "install_git": {
-            "function_name": "install_git",
             "arg_help_pairs": [
                 {"project_toml_path": "Path to the pyproject.toml"}
             ]
@@ -61,8 +51,8 @@ OPTIONS = {
         "upload_latest_to_repo": {
             "function_name": "upload_latest_to_repo",
             "arg_help_pairs": [
-                {"project_toml_path": "Path to the pyproject.toml"}
-                {"repo_branch": "name of the repo branch to commit to"}
+                {"project_toml_path": "Path to the pyproject.toml"},
+                {"repo_branch": "name of the repo branch to commit to"},
             ]
         },
         "setup_virtual_environment": {
