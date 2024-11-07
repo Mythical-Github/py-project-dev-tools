@@ -132,7 +132,9 @@ def make_exe_release(input_toml_path: str, output_exe_dir: str, dir_to_zip: str,
     dist_exe = f'{dist_dir}/{exe_name}.exe'
     build_exe(input_toml_path)
     final_exe_location = f'{output_exe_dir}/{exe_name}.exe'
-    shutil.move(dist_exe, final_exe_location)
+    if os.path.isfile(final_exe_location):
+        os.remove(final_exe_location)
+    shutil.copy(dist_exe, final_exe_location)
     output_zip = f'{output_zip_dir}/{exe_name}.zip'
     zip_directory(dir_to_zip, output_zip)
 
@@ -169,5 +171,21 @@ def make_dev_tools_release(input_dir: str, output_zip_file: str):
     zip_directory(input_dir, output_zip_file)
 
 
-def test_exe_release(input_exe_path: str, command: str):
-    run_app(exe_path=input_exe_path, args=command)
+def test_exe_release(input_toml_path: str):
+    module_name = load_toml_data(input_toml_path)['project']['name']
+    log.log_message('Testing exe release...')
+    exe = f'{get_toml_dir(input_toml_path)}/assets/base/{module_name}.exe'
+    args = [
+        '-h'
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))    
+
+
+def unzip_zip(input_zip_path: str, output_files_dir: str):
+    if not os.path.isdir(output_files_dir):
+        os.makedirs(output_files_dir)
+    
+    with zipfile.ZipFile(input_zip_path, 'r') as zip_ref:
+        zip_ref.extractall(output_files_dir)
+        
+    log.log_message(f"Files from '{input_zip_path}' have been extracted to '{output_files_dir}'")

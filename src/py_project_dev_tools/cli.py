@@ -67,6 +67,13 @@ OPTIONS = {
                 {"input_dir": "path of the dir to zip"},
                 {"output_zip_file": "path of the output zip"},
             ]
+        },
+        "unzip_zip": {
+            "function_name": "unzip_zip",
+            "arg_help_pairs": [
+                {"input_zip_path": "path to the zip to unzip"},
+                {"output_files_dir": "path to the folder to unzip the zip files to"},
+            ]
         }
     }
 }
