@@ -2,16 +2,28 @@
 
 cd /d %~dp0
 
-set "dev_tools_dir=%CD%"
+set "py_project_dev_tools_exe=%CD%/py_project_dev_tools.exe"
 
-cd ../..
+set "project_info_ini=%CD%/project_info.ini"
 
-set "dir_to_zip=%dev_tools_dir%"
-set "output_zip=%CD%/dist/dev_tools.zip"
+set "repo_url="
+set "repo_name="
 
-set "exe_suffix=dist/py_project_dev_tools.exe"
-set "py_project_dev_tools_exe=%CD%/%exe_suffix%"
+for /f "usebackq tokens=1,* delims==" %%A in ("%project_info_ini%") do (
+    if "%%A"=="repo_url" set "repo_url=%%B"
+)
 
-"%py_project_dev_tools_exe%" zip_directory "%dir_to_zip%" "%output_zip%"
+if not defined repo_url echo Missing repo_url in config file && exit /b 1
+
+for %%A in (%repo_url%) do set "repo_name=%%~nA"
+
+if not defined repo_name echo Missing repo_name in config file && exit /b 1
+
+set "toml=%CD%/%repo_name%/pyproject.toml"
+
+"%py_project_dev_tools_exe%" make_dev_tools_release "%toml%"
 
 exit /b 0
+
+
+
