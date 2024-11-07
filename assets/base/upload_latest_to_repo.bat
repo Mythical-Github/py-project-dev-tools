@@ -6,12 +6,6 @@ set "project_info_ini=%CD%/project_info.ini"
 
 set "py_project_dev_tools_exe=%CD%/py_project_dev_tools.exe"
 
-
-exit /b 0
-
-
-set "project_info_ini=%CD%/project_info.ini"
-
 set "repo_url="
 set "repo_name="
 set "repo_branch="
@@ -31,3 +25,5 @@ if not defined repo_name echo Missing repo_name in config file && exit /b 1
 set "toml=%CD%/%repo_name%/pyproject.toml"
 
 "%py_project_dev_tools_exe%" upload_latest_to_repo "%toml%" %repo_branch%
+
+exit /b 0

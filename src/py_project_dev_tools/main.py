@@ -125,18 +125,20 @@ def zip_directory(dir_to_zip: str, output_zip_file: str):
     log.log_message(f'Directory "{dir_to_zip}" has been zipped to "{output_zip_file}"')
 
 
-def make_exe_release(input_toml_path: str, output_exe_dir: str, dir_to_zip: str, output_zip_dir: str):
+def make_exe_release(input_toml_path: str):
     log.log_message('Making exe release...')
-    dist_dir = f'{get_toml_dir(input_toml_path)}/dist'
+    toml_dir = get_toml_dir(input_toml_path)
+    dist_dir = f'{toml_dir}/dist'
     exe_name = load_toml_data(input_toml_path)['project']['name']
     dist_exe = f'{dist_dir}/{exe_name}.exe'
     build_exe(input_toml_path)
+    output_exe_dir = f'{toml_dir}/assets/base'
     final_exe_location = f'{output_exe_dir}/{exe_name}.exe'
     if os.path.isfile(final_exe_location):
         os.remove(final_exe_location)
     shutil.copy(dist_exe, final_exe_location)
-    output_zip = f'{output_zip_dir}/{exe_name}.zip'
-    zip_directory(dir_to_zip, output_zip)
+    output_zip = f'{dist_dir}/{exe_name}.zip'
+    zip_directory(output_exe_dir, output_zip)
 
 
 def upload_latest_to_repo(input_toml_path: str, branch: str = 'main'):
@@ -167,8 +169,13 @@ def upload_latest_to_repo(input_toml_path: str, branch: str = 'main'):
     log.log_message("Changes committed and pushed successfully.")
 
 
-def make_dev_tools_release(input_dir: str, output_zip_file: str):
-    zip_directory(input_dir, output_zip_file)
+def make_dev_tools_release(input_toml_path: str):
+    log.log_message('Making dev tools release...')
+    toml_dir = get_toml_dir(input_toml_path)
+    exe_name = load_toml_data(input_toml_path)['project']['name']
+    output_exe_dir = f'{toml_dir}/assets/dev_tools'
+    output_zip = f'{toml_dir}/dist/{exe_name}_dev_tools.zip'
+    zip_directory(output_exe_dir, output_zip)
 
 
 def test_exe_release(input_toml_path: str):
