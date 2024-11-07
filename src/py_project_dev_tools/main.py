@@ -2,10 +2,9 @@ import os
 import sys
 import shutil
 import tomllib
+import zipfile
 import subprocess
 from pathlib import Path
-
-import requests
 
 from py_project_dev_tools import log_py as log
 
@@ -16,17 +15,25 @@ else:
     SCRIPT_DIR = Path(__file__).resolve().parent
 
 
-# hatch run scripts:refresh-deps: create a new requirements.txt with fresh dependencies
-# hatch run build:exe: Create a UnreaAutoMod.exe in the dist folder
-# hatch run scripts:clean: remove all untracked, and gitignored files
-# hatch shell: Enter a virtual environment which has all dependencies automatically installed
+def run_app(exe_path: str, args: list = [], working_dir: str = None):
+    command = [exe_path] + args
+    log.log_message(f'Command: {" ".join(command)} is executing')
+    if working_dir:
+        if os.path.isdir(working_dir):
+            os.chdir(working_dir)
+
+    process = subprocess.Popen(command, cwd=working_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=False)
+    
+    for line in iter(process.stdout.readline, ''):
+        log.log_message(line.strip())
+
+    process.stdout.close()
+    process.wait()
+    log.log_message(f'Command: {" ".join(command)} finished')
 
 
-def run_command(command, shell=False, input_working_dir=os.getcwd()):
-    result = subprocess.run(command, shell=shell, text=True, cwd=input_working_dir)
-    if result.returncode != 0:
-        log.log_message(f'Command failed: {' '.join(command) if isinstance(command, list) else command}')
-        sys.exit(result.returncode)
+def get_toml_dir(input_toml_path: str):
+    return os.path.dirname(input_toml_path)
 
 
 def load_toml_data(input_toml_path: str):
@@ -36,91 +43,126 @@ def load_toml_data(input_toml_path: str):
 
 def clone_repo(input_url: str, input_branch_name: str, clone_recursively: bool, output_directory: str):
     log.log_message(f'Cloning repository from {input_url}, branch {input_branch_name}...')
+    if not os.path.isdir(output_directory):
+        os.makedirs(output_directory)
+    
+    exe = 'git'
+    args = [
+        'clone',
+        '-b',
+        input_branch_name,
+        input_url
+    ]
+
     if clone_recursively:
-        run_command(['git', 'clone', '--recurse-submodules', '-b', input_branch_name, input_url], input_working_dir=output_directory)
-    else:
-        run_command(['git', 'clone', '-b', input_branch_name, input_url], input_working_dir=output_directory)
+        args.insert(1, '--recurse-submodules')
+
+    run_app(exe, args, working_dir=output_directory)
 
 
 def refresh_deps(input_toml_path: str):
     log.log_message('Refreshing dependencies...')
-    toml_dir = os.path.dirname(input_toml_path)
-    run_command(['hatch', 'run', "scripts:refresh-deps"], input_working_dir=toml_dir)
-
-
-        # "install_hatch": {
-        #     "function_name": "install_hatch",
-        #     "arg_help_pairs": [
-        #         {"project_toml_path": "Path to the pyproject.toml"}
-        #     ]
-        # },
-        # "install_git": {
-        #     "function_name": "install_git",
-        #     "arg_help_pairs": [
-        #         {"project_toml_path": "Path to the pyproject.toml"}
-        #     ]
-        # },
-
-
-# def is_hatch_installed(input_toml_path: str) -> bool:
-#     if os.path.exists(get_hatch_install_path(input_toml_path)):
-#         return True
-#     else:
-#         return False
-
-
-# def get_hatch_install_path(input_toml_path: str) -> str:
-#     toml_dir = os.path.dirname(input_toml_path)
-#     return f'{toml_dir}/assets/programs/hatch-universal.exe'
-
-
-# def get_hatch_path(input_toml_path: str) -> str:
-#     if not is_hatch_installed(input_toml_path):
-#         install_hatch(input_toml_path)
-#     return get_hatch_install_path(input_toml_path)
-
-
-# def install_hatch(input_toml_path: str):
-#     url = 'https://github.com/pypa/hatch/releases/latest/download/hatch-universal.exe'
-#     log.log_message('Downloading hatch-universal.exe...')
-#     response = requests.get(url, stream=True)
-#     response.raise_for_status()
-#     hatch_dir = os.path.dirname(get_hatch_install_path(input_toml_path))
-#     if not os.path.isdir(hatch_dir):
-#         os.makedirs(hatch_dir)
-#     with open(get_hatch_install_path(input_toml_path), 'wb') as file:
-#         for chunk in response.iter_content(chunk_size=8192):
-#             file.write(chunk)
-#     log.log_message(f'Download completed and saved to {get_hatch_install_path(input_toml_path)}')
-
-
-# def install_git(input_toml_path: str):
-#     pass
+    exe = 'hatch'
+    args = [
+        'run',
+        'scripts:refresh-deps'
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
 
 def test_virtual_environment(input_toml_path: str):
-    pass
+    log.log_message('Building exe...')
+    exe = 'hatch'
+    args = [
+        'run',
+        'build:exe'
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
 
 def cleanup_repo(input_toml_path: str):
-    pass
-
-
-def upload_latest_to_repo(input_url: str, branch_name: str):
-    pass
-
+    log.log_message('Cleaning up repo...')
+    exe = 'hatch'
+    args = [
+        'run',
+        'scripts:clean'
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
+    
 
 def setup_virtual_environment(input_toml_path: str):
     log.log_message('Setting up virtual environment...')
-    toml_dir = os.path.dirname(input_toml_path)
-    run_command(['hatch', 'shell', '--name', 'shell_name_test'], input_working_dir=toml_dir)
+    exe = 'hatch'
+    args = [
+        'env',
+        'create',
+        'default'
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
 
-def make_all_release(input_toml_path: str):
-    pass
-def make_exe_release(input_toml_path: str):
-    pass
-def test_exe_release(input_toml_path: str):
-    pass
-def make_dev_tools_release(input_toml_path: str):
-    pass
+def build_exe(input_toml_path: str):
+    log.log_message('Building exe...')
+    exe = 'hatch'
+    args = [
+        'run',
+        'build:exe'
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
+
+
+def zip_directory(dir_to_zip: str, output_zip_file: str):
+    with zipfile.ZipFile(output_zip_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk(dir_to_zip):
+            for file in files:
+                full_path = os.path.join(root, file)
+                arc_name = os.path.relpath(full_path, start=dir_to_zip)
+                zipf.write(full_path, arcname=arc_name)
+    log.log_message(f'Directory "{dir_to_zip}" has been zipped to "{output_zip_file}"')
+
+
+def make_exe_release(input_toml_path: str, output_exe_dir: str, dir_to_zip: str, output_zip_file: str):
+    log.log_message('Making exe release...')
+    dist_dir = f'{get_toml_dir(input_toml_path)}/dist'
+    exe_name = load_toml_data(input_toml_path)['project']['name']
+    dist_exe = f'{dist_dir}/{exe_name}.exe'
+    build_exe(input_toml_path)
+    final_exe_location = f'{output_exe_dir}/{exe_name}'
+    shutil.move(dist_exe, final_exe_location)
+    zip_directory(dir_to_zip, output_zip_file)
+
+
+def upload_latest_to_repo(input_toml_path: str, branch: str = 'main'):
+    desc = input("Enter commit description: ")
+
+    status_result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    if status_result.returncode != 0 or not status_result.stdout.strip():
+        log.log_message("No changes detected or not in a Git repository.")
+        sys.exit(1)
+
+    checkout_result = subprocess.run(["git", "checkout", branch], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    if checkout_result.returncode != 0:
+        log.log_message(f"Failed to switch to the {branch} branch.")
+        sys.exit(1)
+
+    subprocess.run(["git", "add", "."], check=True, cwd=get_toml_dir(input_toml_path))
+
+    commit_result = subprocess.run(["git", "commit", "-m", desc], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    if commit_result.returncode != 0:
+        log.log_message("Commit failed.")
+        sys.exit(1)
+
+    push_result = subprocess.run(["git", "push", "origin", branch], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    if push_result.returncode != 0:
+        log.log_message("Push failed.")
+        sys.exit(1)
+
+    log.log_message("Changes committed and pushed successfully.")
+
+
+def make_dev_tools_release(input_dir: str, output_zip_file: str):
+    zip_directory(input_dir, output_zip_file)
+
+
+def test_exe_release(input_exe_path: str, command: str):
+    run_app(exe_path=input_exe_path, args=command)

@@ -61,10 +61,11 @@ OPTIONS = {
                 {"project_toml_path": "Path to the pyproject.toml"}
             ]
         },
-        "make_all_release": {
-            "function_name": "make_all_release",
+        "zip_directory": {
+            "function_name": "zip_dir",
             "arg_help_pairs": [
-                {"project_toml_path": "Path to the pyproject.toml"}
+                {"input_dir": "path of the dir to zip"},
+                {"output_zip_file": "path of the output zip"},
             ]
         }
     }
