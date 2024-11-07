@@ -62,7 +62,7 @@ OPTIONS = {
             ]
         },
         "zip_directory": {
-            "function_name": "zip_dir",
+            "function_name": "zip_directory",
             "arg_help_pairs": [
                 {"input_dir": "path of the dir to zip"},
                 {"output_zip_file": "path of the output zip"},

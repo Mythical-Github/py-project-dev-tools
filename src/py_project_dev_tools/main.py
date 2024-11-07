@@ -71,11 +71,15 @@ def refresh_deps(input_toml_path: str):
 
 
 def test_virtual_environment(input_toml_path: str):
-    log.log_message('Building exe...')
+    module_name = load_toml_data(input_toml_path)['project']['name']
+    log.log_message('Testing virtual environment...')
     exe = 'hatch'
     args = [
         'run',
-        'build:exe'
+        'python',
+        '-m',
+        module_name,
+        '-h'
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
@@ -121,15 +125,16 @@ def zip_directory(dir_to_zip: str, output_zip_file: str):
     log.log_message(f'Directory "{dir_to_zip}" has been zipped to "{output_zip_file}"')
 
 
-def make_exe_release(input_toml_path: str, output_exe_dir: str, dir_to_zip: str, output_zip_file: str):
+def make_exe_release(input_toml_path: str, output_exe_dir: str, dir_to_zip: str, output_zip_dir: str):
     log.log_message('Making exe release...')
     dist_dir = f'{get_toml_dir(input_toml_path)}/dist'
     exe_name = load_toml_data(input_toml_path)['project']['name']
     dist_exe = f'{dist_dir}/{exe_name}.exe'
     build_exe(input_toml_path)
-    final_exe_location = f'{output_exe_dir}/{exe_name}'
+    final_exe_location = f'{output_exe_dir}/{exe_name}.exe'
     shutil.move(dist_exe, final_exe_location)
-    zip_directory(dir_to_zip, output_zip_file)
+    output_zip = f'{output_zip_dir}/{exe_name}.zip'
+    zip_directory(dir_to_zip, output_zip)
 
 
 def upload_latest_to_repo(input_toml_path: str, branch: str = 'main'):
