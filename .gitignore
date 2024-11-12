@@ -161,3 +161,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 src/py_project_dev_tools/_version.py
+assets/base/py_project_dev_tools.exe
