@@ -8,6 +8,10 @@ set "toml=%CD%/../../pyproject.toml"
 
 "%py_project_dev_tools_exe%" make_exe_release "%toml%"
 
+set "dist_dir=%CD%\..\..\dist"
+
+start explorer "%dist_dir%"
+
 exit /b 0
 
 
