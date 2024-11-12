@@ -133,6 +133,7 @@ def make_exe_release(input_toml_path: str):
     dist_exe = f'{dist_dir}/{exe_name}.exe'
     build_exe(input_toml_path)
     output_exe_dir = f'{toml_dir}/assets/base'
+    os.makedirs(output_exe_dir, exist_ok=True)
     final_exe_location = f'{output_exe_dir}/{exe_name}.exe'
     if os.path.isfile(final_exe_location):
         os.remove(final_exe_location)
@@ -173,8 +174,10 @@ def make_dev_tools_release(input_toml_path: str):
     log.log_message('Making dev tools release...')
     toml_dir = get_toml_dir(input_toml_path)
     exe_name = load_toml_data(input_toml_path)['project']['name']
-    output_exe_dir = f'{toml_dir}/assets/dev_tools'
-    output_zip = f'{toml_dir}/dist/{exe_name}_dev_tools.zip'
+    output_exe_dir = os.path.join(toml_dir, 'assets', 'dev_tools')
+    dist_dir = os.path.join(toml_dir, 'dist')
+    os.makedirs(dist_dir, exist_ok=True)
+    output_zip = f'{dist_dir}/{exe_name}_dev_tools.zip'
     zip_directory(output_exe_dir, output_zip)
 
 
