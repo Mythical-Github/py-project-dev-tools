@@ -1,13 +1,12 @@
 import os
-import sys
 import shutil
+import subprocess
+import sys
 import tomllib
 import zipfile
-import subprocess
 from pathlib import Path
 
 from py_project_dev_tools import log_py as log
-
 
 if getattr(sys, 'frozen', False):
     SCRIPT_DIR = Path(sys.executable).parent
@@ -23,7 +22,7 @@ def run_app(exe_path: str, args: list = [], working_dir: str = None):
             os.chdir(working_dir)
 
     process = subprocess.Popen(command, cwd=working_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=False)
-    
+
     for line in iter(process.stdout.readline, ''):
         log.log_message(line.strip())
 
@@ -45,7 +44,7 @@ def clone_repo(input_url: str, input_branch_name: str, clone_recursively: bool, 
     log.log_message(f'Cloning repository from {input_url}, branch {input_branch_name}...')
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory)
-    
+
     exe = 'git'
     args = [
         'clone',
@@ -92,7 +91,7 @@ def cleanup_repo(input_toml_path: str):
         'scripts:clean'
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
-    
+
 
 def setup_virtual_environment(input_toml_path: str):
     log.log_message('Setting up virtual environment...')
@@ -145,24 +144,24 @@ def make_exe_release(input_toml_path: str):
 def upload_latest_to_repo(input_toml_path: str, branch: str = 'main'):
     desc = input("Enter commit description: ")
 
-    status_result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    status_result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path), check=False)
     if status_result.returncode != 0 or not status_result.stdout.strip():
         log.log_message("No changes detected or not in a Git repository.")
         sys.exit(1)
 
-    checkout_result = subprocess.run(["git", "checkout", branch], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    checkout_result = subprocess.run(["git", "checkout", branch], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path), check=False)
     if checkout_result.returncode != 0:
         log.log_message(f"Failed to switch to the {branch} branch.")
         sys.exit(1)
 
     subprocess.run(["git", "add", "."], check=True, cwd=get_toml_dir(input_toml_path))
 
-    commit_result = subprocess.run(["git", "commit", "-m", desc], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    commit_result = subprocess.run(["git", "commit", "-m", desc], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path), check=False)
     if commit_result.returncode != 0:
         log.log_message("Commit failed.")
         sys.exit(1)
 
-    push_result = subprocess.run(["git", "push", "origin", branch], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path))
+    push_result = subprocess.run(["git", "push", "origin", branch], capture_output=True, text=True, cwd=get_toml_dir(input_toml_path), check=False)
     if push_result.returncode != 0:
         log.log_message("Push failed.")
         sys.exit(1)
@@ -188,14 +187,24 @@ def test_exe_release(input_toml_path: str):
     args = [
         '-h'
     ]
-    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))    
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
 
 def unzip_zip(input_zip_path: str, output_files_dir: str):
     if not os.path.isdir(output_files_dir):
         os.makedirs(output_files_dir)
-    
+
     with zipfile.ZipFile(input_zip_path, 'r') as zip_ref:
         zip_ref.extractall(output_files_dir)
-        
+
     log.log_message(f"Files from '{input_zip_path}' have been extracted to '{output_files_dir}'")
+
+
+def lint_code(input_toml_path: str):
+    log.log_message('Linting Code...')
+    exe = 'hatch'
+    args = [
+        'fmt',
+    ]
+    run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
+    log.log_message('Linted Code.')
