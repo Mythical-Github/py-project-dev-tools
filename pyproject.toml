@@ -22,7 +22,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-  "colorama",
+  "rich",
   "requests"
 ]
 
