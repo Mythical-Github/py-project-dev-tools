@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 src/py_project_dev_tools/_version.py
 assets/base/py_project_dev_tools.exe
+assets/base/py_project_dev_tools

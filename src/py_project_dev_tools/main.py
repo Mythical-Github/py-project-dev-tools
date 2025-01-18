@@ -1,12 +1,14 @@
 import os
-import shutil
-import subprocess
 import sys
+import shutil
 import tomllib
 import zipfile
+import platform
+import subprocess
 from pathlib import Path
 
 from py_project_dev_tools import log_py as log
+
 
 if getattr(sys, 'frozen', False):
     SCRIPT_DIR = Path(sys.executable).parent
@@ -124,48 +126,35 @@ def zip_directory(dir_to_zip: str, output_zip_file: str):
     log.log_message(f'Directory "{dir_to_zip}" has been zipped to "{output_zip_file}"')
 
 
-# def make_exe_release(input_toml_path: str):
-#     log.log_message('Making exe release...')
-#     toml_dir = get_toml_dir(input_toml_path)
-#     dist_dir = f'{toml_dir}/dist'
-#     exe_name = load_toml_data(input_toml_path)['project']['name']
-#     dist_exe = f'{dist_dir}/{exe_name}.exe'
-#     build_exe(input_toml_path)
-#     output_exe_dir = f'{toml_dir}/assets/base'
-#     os.makedirs(output_exe_dir, exist_ok=True)
-#     final_exe_location = f'{output_exe_dir}/{exe_name}.exe'
-#     if os.path.isfile(final_exe_location):
-#         os.remove(final_exe_location)
-#     shutil.copy(dist_exe, final_exe_location)
-#     output_zip = f'{dist_dir}/{exe_name}.zip'
-#     zip_directory(output_exe_dir, output_zip)
-
-
 def make_exe_release(input_toml_path: str):
     log.log_message('Making exe release...')
-    
-    with open(input_toml_path, 'rb') as toml_file:  # tomllib expects a binary file object
+
+    with open(input_toml_path, 'rb') as toml_file:
         toml_data = tomllib.load(toml_file)
-    
+
     exe_commands = toml_data['tool']['hatch']['envs']['build']['scripts']['exe']
-    
+
     toml_dir = get_toml_dir(input_toml_path)
     dist_dir = f'{toml_dir}/dist'
     output_exe_dir = f'{toml_dir}/assets/base'
     os.makedirs(output_exe_dir, exist_ok=True)
-    
+
     for exe_command in exe_commands:
         inner_exe_name = exe_command.split('--name ')[1].split(' ')[0]
-        dist_exe = f'{dist_dir}/{inner_exe_name}.exe'
-        final_exe_location = f'{output_exe_dir}/{inner_exe_name}.exe'
-        
+        if platform.system() == 'Windows':
+            dist_exe = f'{dist_dir}/{inner_exe_name}.exe'
+            final_exe_location = f'{output_exe_dir}/{inner_exe_name}.exe'
+        else:
+            dist_exe = f'{dist_dir}/{inner_exe_name}'
+            final_exe_location = f'{output_exe_dir}/{inner_exe_name}'
+
         build_exe(input_toml_path)
-        
+
         if os.path.isfile(final_exe_location):
             os.remove(final_exe_location)
-        
+
         shutil.copy(dist_exe, final_exe_location)
-    
+
     exe_name = load_toml_data(input_toml_path)['project']['name']
     output_zip = f'{dist_dir}/{exe_name}.zip'
     zip_directory(output_exe_dir, output_zip)
@@ -215,11 +204,10 @@ def make_dev_tools_release(input_toml_path: str):
 def test_exe_release(input_toml_path: str):
     module_name = load_toml_data(input_toml_path)['project']['name']
     log.log_message('Testing exe release...')
-    exe = f'{get_toml_dir(input_toml_path)}/assets/base/{module_name}.exe'
-    args = [
-        '-h'
-    ]
+    exe = f'{get_toml_dir(input_toml_path)}/assets/base/{module_name}{"exe" if platform.system() == "Windows" else ""}'
+    args = ['-h']
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
+
 
 
 def unzip_zip(input_zip_path: str, output_files_dir: str):
