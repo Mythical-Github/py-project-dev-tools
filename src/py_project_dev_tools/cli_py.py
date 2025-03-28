@@ -7,7 +7,7 @@ def cli_logic(cli_data):
     commands_module = cli_data['module']
     cli_info_dict = cli_data['commands']
 
-    parser = argparse.ArgumentParser(description="Easy To Use Command Line Modding Utility For Unreal Engine Games 4.0-5.5")
+    parser = argparse.ArgumentParser(description="")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     for command, command_info in cli_info_dict.items():

@@ -95,13 +95,13 @@ def cleanup_repo(input_toml_path: str):
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
 
-def setup_virtual_environment(input_toml_path: str):
+def setup_virtual_environment(input_toml_path: str, env_name: str = "default"):
     log.log_message('Setting up virtual environment...')
     exe = 'hatch'
     args = [
         'env',
         'create',
-        'default'
+        env_name
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
