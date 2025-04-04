@@ -9,6 +9,7 @@ from pathlib import Path
 
 from py_project_dev_tools import log_py as log
 
+
 if getattr(sys, 'frozen', False):
     SCRIPT_DIR = Path(sys.executable).parent
 else:
@@ -228,6 +229,35 @@ def lint_code(input_toml_path: str):
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
     log.log_message('Linted Code.')
+    
+
+class UnsupportedOSError(Exception):
+    pass
+
+
+def get_os_arch_zip_suffix() -> str:
+    os_name = platform.system().lower()
+    arch = platform.machine().lower()
+
+    if os_name == "windows":
+        if arch in {"amd64", "x86_64"}:
+            return "x64_windows"
+        elif arch in {"i386", "i686"}:
+            return "x86_windows"
+    
+    elif os_name == "linux":
+        if "aarch64" in arch:
+            return "arm64_linux"
+        elif "armv7l" in arch:
+            return "armv7_linux"
+        elif "arm" in arch:
+            return "arm_linux"
+        elif arch in {"x86_64"}:
+            return "x64_linux"
+        elif arch in {"i386", "i686"}:
+            return "x86_linux"
+
+    raise UnsupportedOSError(f"Unsupported OS or architecture: {os_name} - {arch}")
 
 
 def make_exe_release_ci_cd():
@@ -279,7 +309,7 @@ def make_exe_release_ci_cd():
         log.log_message(f"Copied EXE from {dist_exe} to {final_exe_location}")
 
     exe_name = load_toml_data(input_toml_path)['project']['name']
-    output_zip = os.path.normpath(f'{dist_dir}/{exe_name}.zip')
+    output_zip = os.path.normpath(f'{dist_dir}/{exe_name}_{get_os_arch_zip_suffix()}.zip')
     log.log_message(f"Zipping exe and related files into: {output_zip}")
 
     zip_directory(output_exe_dir, output_zip)
@@ -287,3 +317,20 @@ def make_exe_release_ci_cd():
 
     log.log_message(f'Executable release created at {output_zip}')
 
+
+# windows 64 packed
+# windows 32 packed
+# windows 64 exe with internal
+# windows 32 exe with internal
+# linux exec arm 32
+# linux exec arm aarch64 (64 bit)
+# linux exec arm71
+
+#  .tar.gz 
+# .whl
+# .sdist
+
+# SHA2-256SUMS
+# SHA2-256SUMS.sig
+# SHA2-512SUMS
+# SHA2-512SUMS.sig 
