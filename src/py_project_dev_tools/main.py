@@ -241,25 +241,17 @@ def get_os_arch_zip_suffix() -> str:
 
     if os_name == "windows":
         if arch in {"amd64", "x86_64"}:
-            return "x64_windows"
+            return "x86_64-pc-windows-msvc"
         elif arch in {"i386", "i686"}:
-            return "x86_windows"
-        elif arch in {"aarch64", "arm64"}:
-            return "arm64_windows"
-        elif arch in {"armv7l", "arm"}:
-            return "arm32_windows"
-    
+            return "i686-pc-windows-msvc"
+
     elif os_name == "linux":
-        if arch in {"aarch64"}:
-            return "arm64_linux"
-        elif arch in {"armv7l"}:
-            return "armv7_linux"
-        elif "arm" in arch:
-            return "arm32_linux"
-        elif arch in {"x86_64"}:
-            return "x64_linux"
+        if arch == "aarch64":
+            return "aarch64-unknown-linux-gnu"
+        elif arch == "x86_64":
+            return "x86_64-unknown-linux-gnu"
         elif arch in {"i386", "i686"}:
-            return "x86_linux"
+            return "i686-unknown-linux-gnu"
 
     raise UnsupportedOSError(f"Unsupported OS or architecture: {os_name} - {arch}")
 
