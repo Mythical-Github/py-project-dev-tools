@@ -250,13 +250,11 @@ def get_os_arch_zip_suffix() -> str:
             return "aarch64-unknown-linux-gnu"
         elif arch == "x86_64":
             return "x86_64-unknown-linux-gnu"
-        elif arch in {"i386", "i686"}:
-            return "i686-unknown-linux-gnu"
 
     raise UnsupportedOSError(f"Unsupported OS or architecture: {os_name} - {arch}")
 
 
-def make_exe_release_ci_cd():
+def make_exe_release_ci_cd(os_arch_line: str = get_os_arch_zip_suffix()):
     log.log_message('Making exe release...')
 
     input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.toml")
@@ -305,7 +303,7 @@ def make_exe_release_ci_cd():
         log.log_message(f"Copied EXE from {dist_exe} to {final_exe_location}")
 
     exe_name = load_toml_data(input_toml_path)['project']['name']
-    output_zip = os.path.normpath(f'{dist_dir}/{exe_name}_{get_os_arch_zip_suffix()}.zip')
+    output_zip = os.path.normpath(f'{dist_dir}/{exe_name}_{os_arch_line}.zip')
     log.log_message(f"Zipping exe and related files into: {output_zip}")
 
     zip_directory(output_exe_dir, output_zip)
