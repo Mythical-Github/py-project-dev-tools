@@ -171,6 +171,10 @@ OPTIONS = {
                     "use_nargs": False
                 }}
             ]
+        },
+        "push_to_repo": {
+            "function_name": "push_to_repo",
+            "arg_help_pairs": []
         }
     }
 }
