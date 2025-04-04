@@ -164,7 +164,13 @@ OPTIONS = {
         },
         "make_exe_release_ci_cd": {
             "function_name": "make_exe_release_ci_cd",
-            "arg_help_pairs": []
+            "arg_help_pairs": [
+                {"os_arch_line": {
+                    "help": "The os_arch string to use for naming the release zip.",
+                    "required": False,
+                    "use_nargs": False
+                }}
+            ]
         }
     }
 }
