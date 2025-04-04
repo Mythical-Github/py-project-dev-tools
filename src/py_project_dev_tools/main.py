@@ -113,6 +113,7 @@ def build_exe(input_toml_path: str):
         'build:exe'
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
+    log.log_message('Finished building exe...')
 
 
 def zip_directory(dir_to_zip: str, output_zip_file: str):
@@ -233,19 +234,29 @@ def make_exe_release_ci_cd():
     log.log_message('Making exe release...')
 
     input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.toml")
+    log.log_message(f"Reading TOML file: {input_toml_path}")
 
     with open(input_toml_path, 'rb') as toml_file:
         toml_data = tomllib.load(toml_file)
+    log.log_message('TOML data loaded successfully')
 
     exe_commands = toml_data['tool']['hatch']['envs']['build']['scripts']['exe']
+    log.log_message(f"Found {len(exe_commands)} exe commands in TOML data.")
 
     toml_dir = os.path.normpath(get_toml_dir(input_toml_path))
     dist_dir = os.path.normpath(f'{toml_dir}/dist')
     output_exe_dir = os.path.normpath(f'{toml_dir}/assets/base')
+    log.log_message(f"Setting up directories: TOML dir: {toml_dir}, Dist dir: {dist_dir}, Output exe dir: {output_exe_dir}")
+
     os.makedirs(output_exe_dir, exist_ok=True)
+    log.log_message(f"Ensured existence of directory: {output_exe_dir}")
 
     for exe_command in exe_commands:
+        log.log_message(f"Processing exe command: {exe_command}")
+
         inner_exe_name = exe_command.split('--name ')[1].split(' ')[0]
+        log.log_message(f"Extracted executable name: {inner_exe_name}")
+
         if platform.system() == 'Windows':
             dist_exe = os.path.normpath(f'{dist_dir}/{inner_exe_name}.exe')
             final_exe_location = os.path.normpath(f'{output_exe_dir}/{inner_exe_name}.exe')
@@ -253,15 +264,26 @@ def make_exe_release_ci_cd():
             dist_exe = os.path.normpath(f'{dist_dir}/{inner_exe_name}')
             final_exe_location = os.path.normpath(f'{output_exe_dir}/{inner_exe_name}')
 
+        log.log_message(f"Final EXE location: {final_exe_location}")
+
         build_exe(input_toml_path)
+        log.log_message(f"Build completed for {inner_exe_name}")
 
         if os.path.isfile(final_exe_location):
+            log.log_message(f"Removing existing file at: {final_exe_location}")
             os.remove(final_exe_location)
+        else:
+            log.log_message(f"No existing file found at: {final_exe_location}")
 
         shutil.copy(dist_exe, final_exe_location)
+        log.log_message(f"Copied EXE from {dist_exe} to {final_exe_location}")
 
     exe_name = load_toml_data(input_toml_path)['project']['name']
     output_zip = os.path.normpath(f'{dist_dir}/{exe_name}.zip')
+    log.log_message(f"Zipping exe and related files into: {output_zip}")
+
     zip_directory(output_exe_dir, output_zip)
+    log.log_message('Finished zipping exe and related files.')
 
     log.log_message(f'Executable release created at {output_zip}')
+
