@@ -1,14 +1,13 @@
 import os
-import sys
+import platform
 import shutil
+import subprocess
+import sys
 import tomllib
 import zipfile
-import platform
-import subprocess
 from pathlib import Path
 
 from py_project_dev_tools import log_py as log
-
 
 if getattr(sys, 'frozen', False):
     SCRIPT_DIR = Path(sys.executable).parent
@@ -95,13 +94,13 @@ def cleanup_repo(input_toml_path: str):
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
 
-def setup_virtual_environment(input_toml_path: str):
+def setup_virtual_environment(input_toml_path: str, env_name: str = "default"):
     log.log_message('Setting up virtual environment...')
     exe = 'hatch'
     args = [
         'env',
         'create',
-        'default'
+        env_name
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
 
@@ -228,3 +227,41 @@ def lint_code(input_toml_path: str):
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
     log.log_message('Linted Code.')
+
+
+def make_exe_release_ci_cd():
+    log.log_message('Making exe release...')
+
+    input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.toml")
+
+    with open(input_toml_path, 'rb') as toml_file:
+        toml_data = tomllib.load(toml_file)
+
+    exe_commands = toml_data['tool']['hatch']['envs']['build']['scripts']['exe']
+
+    toml_dir = os.path.normpath(get_toml_dir(input_toml_path))
+    dist_dir = os.path.normpath(f'{toml_dir}/dist')
+    output_exe_dir = os.path.normpath(f'{toml_dir}/assets/base')
+    os.makedirs(output_exe_dir, exist_ok=True)
+
+    for exe_command in exe_commands:
+        inner_exe_name = exe_command.split('--name ')[1].split(' ')[0]
+        if platform.system() == 'Windows':
+            dist_exe = os.path.normpath(f'{dist_dir}/{inner_exe_name}.exe')
+            final_exe_location = os.path.normpath(f'{output_exe_dir}/{inner_exe_name}.exe')
+        else:
+            dist_exe = os.path.normpath(f'{dist_dir}/{inner_exe_name}')
+            final_exe_location = os.path.normpath(f'{output_exe_dir}/{inner_exe_name}')
+
+        build_exe(input_toml_path)
+
+        if os.path.isfile(final_exe_location):
+            os.remove(final_exe_location)
+
+        shutil.copy(dist_exe, final_exe_location)
+
+    exe_name = load_toml_data(input_toml_path)['project']['name']
+    output_zip = os.path.normpath(f'{dist_dir}/{exe_name}.zip')
+    zip_directory(output_exe_dir, output_zip)
+
+    log.log_message(f'Executable release created at {output_zip}')

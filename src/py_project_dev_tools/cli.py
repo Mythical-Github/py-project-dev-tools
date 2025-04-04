@@ -106,11 +106,20 @@ OPTIONS = {
         "setup_virtual_environment": {
             "function_name": "setup_virtual_environment",
             "arg_help_pairs": [
-                {"project_toml_path": {
-                    "help": "Path to the pyproject.toml",
-                    "required": True,
-                    "use_nargs": False
-                }}
+                {
+                    "project_toml_path": {
+                        "help": "Path to the pyproject.toml",
+                        "required": True,
+                        "use_nargs": False
+                    }
+                },
+                {
+                    "env_name": {
+                        "help": "Name of the virtual environment",
+                        "required": False,
+                        "use_nargs": False
+                    }
+                }
             ]
         },
         "zip_directory": {
@@ -152,6 +161,10 @@ OPTIONS = {
                     "use_nargs": False
                 }}
             ]
+        },
+        "make_exe_release_ci_cd": {
+            "function_name": "make_exe_release_ci_cd",
+            "arg_help_pairs": []
         }
     }
 }
