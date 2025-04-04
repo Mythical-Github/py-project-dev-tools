@@ -244,14 +244,18 @@ def get_os_arch_zip_suffix() -> str:
             return "x64_windows"
         elif arch in {"i386", "i686"}:
             return "x86_windows"
+        elif arch in {"aarch64", "arm64"}:
+            return "arm64_windows"
+        elif arch in {"armv7l", "arm"}:
+            return "arm32_windows"
     
     elif os_name == "linux":
-        if "aarch64" in arch:
+        if arch in {"aarch64"}:
             return "arm64_linux"
-        elif "armv7l" in arch:
+        elif arch in {"armv7l"}:
             return "armv7_linux"
         elif "arm" in arch:
-            return "arm_linux"
+            return "arm32_linux"
         elif arch in {"x86_64"}:
             return "x64_linux"
         elif arch in {"i386", "i686"}:
