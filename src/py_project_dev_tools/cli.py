@@ -161,6 +161,10 @@ OPTIONS = {
                     "use_nargs": False
                 }}
             ]
+        },
+        "make_exe_release_ci_cd": {
+            "function_name": "make_exe_release_ci_cd",
+            "arg_help_pairs": []
         }
     }
 }

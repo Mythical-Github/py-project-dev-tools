@@ -232,7 +232,7 @@ def lint_code(input_toml_path: str):
 def make_exe_release_ci_cd():
     log.log_message('Making exe release...')
 
-    input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.tml")
+    input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.toml")
 
     with open(input_toml_path, 'rb') as toml_file:
         toml_data = tomllib.load(toml_file)
