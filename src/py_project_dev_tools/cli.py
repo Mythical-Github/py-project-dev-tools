@@ -175,10 +175,6 @@ OPTIONS = {
         "push_to_repo": {
             "function_name": "push_to_repo",
             "arg_help_pairs": []
-        },
-        "pull_from_repo": {
-            "function_name": "pull_from_repo",
-            "arg_help_pairs": []
         }
     }
 }

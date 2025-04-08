@@ -257,7 +257,7 @@ def get_os_arch_zip_suffix() -> str:
 def make_exe_release_ci_cd(os_arch_line: str = get_os_arch_zip_suffix()):
     log.log_message('Making exe release...')
 
-    input_toml_path = os.path.normpath(f"{os.path.dirname(os.path.dirname(SCRIPT_DIR))}/pyproject.toml")
+    input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.toml")
     log.log_message(f"Reading TOML file: {input_toml_path}")
 
     with open(input_toml_path, 'rb') as toml_file:
@@ -313,8 +313,5 @@ def make_exe_release_ci_cd(os_arch_line: str = get_os_arch_zip_suffix()):
 
 
 def push_to_repo():
-    subprocess.run('git push')
-
-
-def pull_from_repo():
-    subprocess.run('git pull')
+    command= f'git push'
+    subprocess.run(command)
