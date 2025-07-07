@@ -1,13 +1,9 @@
-[build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
-
 [project]
-name = "py_project_dev_tools"
-dynamic = ["version"]
+name = "py-project-dev-tools"
+version = "0.1.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { file = "LICENSE" }
 keywords = []
 authors = [
@@ -16,63 +12,30 @@ authors = [
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-  "rich",
-  "requests"
+    "pyinstaller>=6.14.2",
+    "requests>=2.32.4",
+    "rich>=14.0.0",
 ]
-
-[project.urls]
-Documentation = "https://github.com/Mythical-Github/py_project_dev_tools/blob/main/README.md"
-Issues = "https://github.com/Mythical-Github/py_project_dev_tools/issues"
-Source = "https://github.com/Mythical-Github/py_project_dev_tools"
 
 [project.scripts]
 py_project_dev_tools = "py_project_dev_tools.__main__:main"
 
-[tool.hatch.metadata]
-allow-direct-references = true
+[project.urls]
+Documentation = "https://github.com/Mythical-Github/py-project-dev-tools/blob/main/README.md"
+Issues = "https://github.com/Mythical-Github/py-project-dev-tools/issues"
+Source = "https://github.com/Mythical-Github/py-project-dev-tools"
 
-[tool.hatch.version]
-source = "vcs"
+[tool.pyright]
+extraPaths = [".venv/Lib/site-packages"]
 
-[tool.hatch.build.hooks.vcs]
-version-file = "src/py_project_dev_tools/_version.py"
-
-[tool.hatch.env]
-requires = ["hatch-pip-compile"]
-
-[tool.hatch.envs.default]
-type = "pip-compile"
-path = ".venv"
-pip-compile-resolver = "uv"
-pip-compile-installer = "uv"
-
-[tool.hatch.envs.build]
-template = "build"
-installer = "uv"
-dependencies = [
-  "pyinstaller",
-]
-
-[tool.hatch.envs.build.scripts]
-exe = [
-  "pyinstaller --noconfirm --onefile --console --name py_project_dev_tools --icon=assets/images/icons/project_main_icon.ico src/py_project_dev_tools/__main__.py",
-]
-
-[tool.hatch.envs.scripts]
-template = "scripts"
-detached = true
-installer = "uv"
-
-[tool.hatch.envs.scripts.scripts]
-clean = "git clean -d -X --force"
-refresh-deps = [
-  "hatch env remove default",
-  "python -c \"import os; os.remove('requirements.txt')\"",
-  "hatch env create default",
-]
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "semver2"
+version_provider = "pep621"
+update_changelog_on_bump = true
