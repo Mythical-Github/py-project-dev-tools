@@ -77,7 +77,7 @@ def zip_directory(dir_to_zip: str, output_zip_file: str):
 
 def build_exes(input_toml_path: str):
     log.log_message('Building exes...')
-    exe_name = load_toml_data(input_toml_path)['project']['name']
+    exe_name = load_toml_data(input_toml_path)['project']['name'].replace("-", "_")
     py_path = f'src/{exe_name}/__main__.py'
     pyw_path = f'{py_path}w'
     exe = 'uv'
@@ -85,11 +85,12 @@ def build_exes(input_toml_path: str):
         'run',
         'pyinstaller',
         '--noconfirm',
-        '--onefile', 
+        '--onefile',
+        "--hidden-import=textual.widgets._tab",
         '--console', 
         '--name',
         f'{exe_name}',
-        '--icon=assets/images/icons/project_main_icon.ico',
+        '--icon=assets/images/project_main_icon.ico',
         py_path
     ]
     run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
@@ -101,11 +102,12 @@ def build_exes(input_toml_path: str):
             'run',
             'pyinstaller',
             '--noconfirm',
-            '--onefile', 
+            '--onefile',
+            "--hidden-import=textual.widgets._tab", 
             '--console', 
             '--name',
             f'{exe_name}_headless',
-            '--icon=assets/images/icons/project_main_icon.ico',
+            '--icon=assets/images/project_main_icon.ico',
             pyw_path
         ]
         run_app(exe_path=exe, args=args, working_dir=get_toml_dir(input_toml_path))
@@ -115,7 +117,7 @@ def build_exes(input_toml_path: str):
 
 def make_exe_release(input_toml_path: str):
     log.log_message('Making exe release...')
-    main_exe_name = load_toml_data(input_toml_path)['project']['name']
+    main_exe_name = load_toml_data(input_toml_path)['project']['name'].replace("-", "_")
 
     exe_names = [main_exe_name, f'{main_exe_name}_headless']
 
@@ -150,7 +152,7 @@ def make_exe_release_ci_cd(os_arch_line: str = get_os_arch_zip_suffix()):
 
     input_toml_path = os.path.normpath(f"{os.getcwd()}/pyproject.toml")
     log.log_message(f"Reading TOML file: {input_toml_path}")
-    main_exe_name = load_toml_data(input_toml_path)['project']['name']
+    main_exe_name = load_toml_data(input_toml_path)['project']['name'].replace("-", "_")
 
     exe_names = [main_exe_name, f'{main_exe_name}_headless']
 
